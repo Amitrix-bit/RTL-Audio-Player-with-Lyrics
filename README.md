@@ -5,7 +5,11 @@
 [![Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge)](https://theamirreza.great-site.net/Music/)  
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)  
 
-![Screenshot](https://theamirreza.great-site.net/music-player/musics/screen.jpeg)  
+![image](https://github.com/user-attachments/assets/d0178434-8c7f-4d27-8836-294dc18baaa6)
+![image](https://github.com/user-attachments/assets/3fc12961-b81f-4e59-a4f4-e0b8d3d2d2b4)
+![image](https://github.com/user-attachments/assets/05ed4ac6-51b7-443a-96c9-374105e8a06d)
+
+
 
 ## ✨ ویژگی‌های کلیدی  
 - **پشتیبانی از RTL** (بهینه‌شده برای زبان فارسی)  
