@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>عرفان طهماسبی | هزار و یک شب</title>
+    <link rel="icon" type="image/png" href="https://theamirreza.great-site.net/assets/images/favicon.png">
+    <style>
+        :root {
+            --primary-bg: linear-gradient(135deg, #1a2a6c, #3a7bd5);
+            --player-bg: rgba(30, 30, 40, 0.9);
+            --text-color: #f0f0f0;
+            --progress-bg: rgba(255, 255, 255, 0.2);
+            --progress-fill: linear-gradient(to right, #3a7bd5, #00d2ff);
+            --play-btn-bg: linear-gradient(to right, #3a7bd5, #00d2ff);
+            --play-btn-shadow: 0 5px 20px rgba(58, 123, 213, 0.5);
+            --control-btn-size: 50px;
+            --player-height: 550px;
+        }
+        
+        .dark-mode {
+            --primary-bg: linear-gradient(135deg, #0f0c29, #302b63);
+            --player-bg: rgba(20, 20, 30, 0.95);
+            --text-color: #e0e0e0;
+            --progress-bg: rgba(255, 255, 255, 0.1);
+            --progress-fill: linear-gradient(to right, #8E2DE2, #4A00E0);
+            --play-btn-bg: linear-gradient(to right, #8E2DE2, #4A00E0);
+            --play-btn-shadow: 0 5px 20px rgba(142, 45, 226, 0.5);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--primary-bg);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow: hidden;
+            color: var(--text-color);
+            transition: background 0.5s ease;
+            touch-action: manipulation;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .blur-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(15px);
+            z-index: 1;
+        }
+        
+        .player-container {
+            position: relative;
+            width: 90%;
+            max-width: 400px;
+            min-width: 300px;
+            height: var(--player-height);
+            background: var(--player-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 2;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .album-art-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            max-height: 300px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .album-art {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+        
+        .song-info {
+            text-align: center;
+            margin-bottom: 15px;
+            flex-shrink: 0;
+        }
+        
+        .song-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .artist {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .timeline-container {
+            position: relative;
+            margin: 15px 0;
+            direction: ltr;
+            flex-shrink: 0;
+        }
+        
+        .timeline {
+            width: 100%;
+            height: 5px;
+            background: var(--progress-bg);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .progress {
+            height: 100%;
+            width: 0%;
+            background: var(--progress-fill);
+            border-radius: 3px;
+            position: relative;
+        }
+        
+        .progress-handle {
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease;
+            cursor: grab;
+            user-select: none;
+        }
+        
+        .progress-handle:active {
+            cursor: grabbing;
+        }
+        
+        .timeline:hover .progress-handle {
+            width: 14px;
+            height: 14px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+        }
+        
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-top: 5px;
+            opacity: 0.7;
+            direction: rtl;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 15px;
+            gap: 20px;
+            flex-shrink: 0;
+        }
+        
+        .play-btn {
+            width: var(--control-btn-size);
+            height: var(--control-btn-size);
+            border-radius: 50%;
+            background: var(--play-btn-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: var(--play-btn-shadow);
+            transition: all 0.3s ease;
+            border: none;
+            outline: none;
+        }
+        
+        .play-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .play-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .play-icon {
+            width: 0;
+            height: 0;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            border-left: 20px solid white;
+            margin-right: -3px;
+            transition: all 0.2s ease;
+        }
+        
+        .pause-icon {
+            width: 20px;
+            height: 24px;
+            display: flex;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+        
+        .pause-icon::before,
+        .pause-icon::after {
+            content: '';
+            width: 6px;
+            height: 100%;
+            background: white;
+        }
+        
+        .theme-toggle {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            width: var(--control-btn-size);
+            height: var(--control-btn-size);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: var(--text-color);
+            z-index: 3;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .theme-icon {
+            position: relative;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #fff 0deg 90deg,
+                transparent 90deg 270deg,
+                #fff 270deg 360deg
+            );
+            transition: transform 0.5s ease;
+        }
+        
+        .theme-toggle.active .theme-icon {
+            transform: rotate(180deg);
+        }
+        
+        .theme-wave {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: scale(0);
+            opacity: 0;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+        
+        .theme-toggle.active .theme-wave {
+            transform: scale(2);
+            opacity: 1;
+        }
+        
+        .lyrics-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            width: var(--control-btn-size);
+            height: var(--control-btn-size);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: var(--text-color);
+            z-index: 3;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .lyrics-icon {
+            width: 24px;
+            height: 24px;
+            position: relative;
+        }
+        
+        .lyrics-icon::before,
+        .lyrics-icon::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: currentColor;
+            border-radius: 1px;
+        }
+        
+        .lyrics-icon::before {
+            top: 6px;
+            box-shadow: 0 8px 0 currentColor;
+        }
+        
+        .lyrics-icon::after {
+            bottom: 6px;
+            box-shadow: 0 -8px 0 currentColor;
+        }
+        
+        .lyrics-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.97);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            padding: 70px 20px 20px;
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .lyrics-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .lyrics-container.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .lyrics-content {
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            line-height: 2.5;
+            font-size: 18px;
+            padding: 20px 0;
+            direction: rtl;
+        }
+        
+        .lyrics-line {
+            padding: 10px 15px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+        
+        .lyrics-line:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .current-line {
+            color: #00d2ff;
+            font-weight: bold;
+            font-size: 22px;
+            background: rgba(0, 210, 255, 0.1);
+            transform: scale(1.05);
+        }
+        
+        .close-lyrics {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 11;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .lyrics-container.active ~ .close-lyrics {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
+        @media (max-width: 480px) {
+            :root {
+                --player-height: 80vh;
+                --control-btn-size: 45px;
+            }
+            
+            .player-container {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            .album-art-container {
+                max-height: 250px;
+            }
+            
+            .song-title {
+                font-size: 18px;
+            }
+            
+            .artist {
+                font-size: 13px;
+            }
+            
+            .lyrics-content {
+                font-size: 16px;
+                line-height: 2.2;
+            }
+            
+            .current-line {
+                font-size: 20px;
+            }
+            
+            .close-lyrics {
+                width: 35px;
+                height: 35px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="blur-overlay"></div>
+    <div class="particles" id="particles"></div>
+    
+    <button class="theme-toggle" id="theme-toggle">
+        <div class="theme-wave"></div>
+        <div class="theme-icon"></div>
+    </button>
+    
+    <button class="lyrics-btn" id="lyrics-btn">
+        <div class="lyrics-icon"></div>
+    </button>
+    
+    <div class="player-container" id="player-container">
+        <div class="album-art-container">
+            <img src="http://theamirreza.great-site.net/music-player/musics/hezaroyekshab.png" alt="Album Art" class="album-art">
+        </div>
+        
+        <div class="song-info">
+            <h2 class="song-title">هزار و یک شب</h2>
+            <p class="artist">عرفان طهماسبی</p>
+        </div>
+        
+        <div class="timeline-container">
+            <div class="timeline" id="timeline">
+                <div class="progress" id="progress">
+                    <div class="progress-handle"></div>
+                </div>
+            </div>
+            <div class="time-display">
+                <span id="current-time">0:00</span>
+                <span id="total-time">0:00</span>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="play-btn" id="play-btn">
+                <div class="play-icon" id="play-icon"></div>
+            </button>
+        </div>
+    </div>
+
+    <div class="lyrics-container" id="lyrics-container">
+        <div class="lyrics-content" id="lyrics-content">
+            <!-- متن آهنگ به صورت دینامیک لود می‌شود -->
+            <p>در حال دریافت متن آهنگ...</p>
+        </div>
+    </div>
+
+    <button class="close-lyrics" id="close-lyrics">×</button>
+
+    <audio id="audio" src="https://theamirreza.great-site.net/music-player/musics/hezaroyekshab.mp3"></audio>
+
+    <script>
+        // عناصر DOM
+        const audio = document.getElementById('audio');
+        const playBtn = document.getElementById('play-btn');
+        const playIcon = document.getElementById('play-icon');
+        const progress = document.getElementById('progress');
+        const timeline = document.getElementById('timeline');
+        const progressHandle = document.querySelector('.progress-handle');
+        const currentTimeDisplay = document.getElementById('current-time');
+        const totalTimeDisplay = document.getElementById('total-time');
+        const themeToggle = document.getElementById('theme-toggle');
+        const lyricsBtn = document.getElementById('lyrics-btn');
+        const lyricsContainer = document.getElementById('lyrics-container');
+        const closeLyrics = document.getElementById('close-lyrics');
+        const lyricsContent = document.getElementById('lyrics-content');
+        const body = document.body;
+        
+        // وضعیت پخش
+        let isPlaying = false;
+        let isDragging = false;
+        let lyricsData = [];
+        let currentLyricIndex = 0;
+        
+        // Play/Pause functionality
+        function togglePlayPause() {
+            if (audio.paused) {
+                audio.play().catch(e => console.log("Playback failed:", e));
+                playIcon.className = 'pause-icon';
+                isPlaying = true;
+                
+                // توقف انیمیشن دکمه متن بعد از اولین پخش
+                lyricsBtn.style.animation = 'none';
+            } else {
+                audio.pause();
+                playIcon.className = 'play-icon';
+                isPlaying = false;
+            }
+            updateMediaSession();
+        }
+        
+        // Update Media Session for browser/media keys
+        function updateMediaSession() {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+            }
+        }
+        
+        // Initialize Media Session
+        function initMediaSession() {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: 'هزار و یک شب',
+                    artist: 'عرفان طهماسبی',
+                    artwork: [
+                        { src: 'http://theamirreza.great-site.net/music-player/musics/hezaroyekshab.png', sizes: '250x250', type: 'image/png' }
+                    ]
+                });
+                
+                navigator.mediaSession.setActionHandler('play', () => {
+                    audio.play();
+                    playIcon.className = 'pause-icon';
+                    isPlaying = true;
+                    updateMediaSession();
+                });
+                
+                navigator.mediaSession.setActionHandler('pause', () => {
+                    audio.pause();
+                    playIcon.className = 'play-icon';
+                    isPlaying = false;
+                    updateMediaSession();
+                });
+            }
+        }
+        
+        // Event Listeners
+        playBtn.addEventListener('click', togglePlayPause);
+        
+        // Keyboard space key for play/pause
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && e.target === body) {
+                e.preventDefault();
+                togglePlayPause();
+            }
+        });
+        
+        // Update progress bar
+        audio.addEventListener('timeupdate', () => {
+            if (!isDragging) {
+                const progressPercent = (audio.currentTime / audio.duration) * 100;
+                progress.style.width = `${progressPercent}%`;
+                
+                currentTimeDisplay.textContent = formatTime(audio.currentTime);
+                
+                // Update lyrics highlighting
+                updateLyricsHighlight(audio.currentTime);
+            }
+        });
+        
+        // Set total time when metadata is loaded
+        audio.addEventListener('loadedmetadata', () => {
+            totalTimeDisplay.textContent = formatTime(audio.duration);
+            initMediaSession();
+            loadLyrics();
+        });
+        
+        // When audio ends
+        audio.addEventListener('ended', () => {
+            playIcon.className = 'play-icon';
+            progress.style.width = '0%';
+            currentTimeDisplay.textContent = '0:00';
+            isPlaying = false;
+            updateMediaSession();
+        });
+        
+        // Click on timeline to seek
+        timeline.addEventListener('click', (e) => {
+            const rect = timeline.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = Math.max(0, Math.min(audio.duration, pos * audio.duration));
+        });
+        
+        // Drag functionality for progress handle
+        progressHandle.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            e.preventDefault();
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const rect = timeline.getBoundingClientRect();
+            let pos = (e.clientX - rect.left) / rect.width;
+            pos = Math.max(0, Math.min(1, pos));
+            
+            progress.style.width = `${pos * 100}%`;
+            audio.currentTime = pos * audio.duration;
+            currentTimeDisplay.textContent = formatTime(audio.currentTime);
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+        
+        // Touch support for mobile
+        progressHandle.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            e.preventDefault();
+        });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const rect = timeline.getBoundingClientRect();
+            let pos = (e.touches[0].clientX - rect.left) / rect.width;
+            pos = Math.max(0, Math.min(1, pos));
+            
+            progress.style.width = `${pos * 100}%`;
+            audio.currentTime = pos * audio.duration;
+            currentTimeDisplay.textContent = formatTime(audio.currentTime);
+        });
+        
+        document.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+        
+        // Format time (seconds to MM:SS)
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        // Theme toggle
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            themeToggle.classList.toggle('active');
+            
+            // Save preference to localStorage
+            const isDark = body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+        });
+        
+        // Check for saved theme preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            body.classList.add('dark-mode');
+            themeToggle.classList.add('active');
+        }
+        
+        // Lyrics functionality
+        function toggleLyrics() {
+            lyricsContainer.classList.toggle('active');
+            
+            // Scroll to current line when opening lyrics
+            if (lyricsContainer.classList.contains('active')) {
+                const currentLine = document.querySelector('.current-line');
+                if (currentLine) {
+                    currentLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+        
+        lyricsBtn.addEventListener('click', toggleLyrics);
+        closeLyrics.addEventListener('click', toggleLyrics);
+        
+        // Load predefined lyrics
+        function loadLyrics() {
+            lyricsData = [
+                { time: 0, text: "🎵" },
+                { time: 24, text: "ﻗﺼﻪ ﻫﺰار و ﻳﮏ ﺷﺐ ﺗﻮ دﻟﻢ ﻛﺎﺷﺘﻰ" },
+                { time: 29, text: "ﺗﻮ ﭼﻰ آوردی ﻛﻪ ﺟﺎش ﻗﻠﺒﻤﻮ ﺑﺮداﺷﺘﻰ" },
+                { time: 34, text: "ﻣﺜﻞ ﭘﺎﻳﻴﺰ اوﻣﺪی در ﺑﻪ درم ﻛﺮدی" },
+                { time: 39, text: "اوﻣﺪی ﭼﺸﻤﻪ ﺑﺸﻰ ﺗﺸﻨﻪ ﺗﺮم ﻛﺮدی" },
+                { time: 44, text: "دﻋﺎ ﻛﻦ دﻟﻢ آروم ﺑﮕﻴﺮه" },
+                { time: 47, text: "دﻋﺎم ﻛﻦ اﮔﻪ ﻣﻨﻮ ﻳﺎدت ﻧﻤﻴﺮه" },
+                { time: 51, text: "ﻣﻦ آﺳﻮن ﻧﺮﺳﻴﺪم ﺑﻪ ﺗﻮ" },
+                { time: 54, text: "ﺣﻴﻔﻪ دﻧﻴﺎ ﺗﻮ رو ازم آﺳﻮن ﺑﮕﻴﺮه" },
+                { time: 59, text: "ﻗﺼﻪ ی ﻫﺰار و ﻳﮏ ﺷﺐ واﺳﻪ ﻣﻦ ﺧﻮﻧﺪی" },
+                { time: 64, text: "ﺳﻤﺖ ﭼﺸﻤﺎی ﺧﻮدت ﻗﺒﻠﻤﻮ ﭼﺮﺧﻮﻧﺪی" },
+                { time: 69, text: "ﻳﺎدﺗﻪ ﺻﺪﺗﺎ ﺗﺮاﻧﻪ ﺑﺎ ﭼﺸﺎت ﺳﺎﺧﺘﻰ" },
+                { time: 74, text: "اوﻣﺪم ﻗﺼﻪ ﺑﺸﻢ ﻗﺎﻓﻴﻪ رو ﺑﺎﺧﺘﻰ" },
+                { time: 78, text: "🎵" },
+                { time: 99, text: "ﻓﺎﻧﻮس ﭼﺸﺎﺗﻮ ﺑﻪ ﺗﻦ ﺷﻌﻠﻪ ی ﻣﻦ ﻛﻦ" },
+                { time: 104, text: "ﭘﻴﺮاﻫﻦ آﻏﻮﺷﻤﻮ ﺗﻦ ﻛﻦ" },
+                { time: 109, text: "از ﻛﻮﭼﻪ ی ﻣﻌﺸﻮق اﮔﻪ ای ﺑﺎد ﮔﺬﺷﺘﻰ" },
+                { time: 114, text: "از ﺣﺎل دﻟﻢ ﻳﺎرو ﺧﺒﺮ ﻛﻦ" },
+                { time: 118, text: "خبر کن" },
+                { time: 121, text: "خبر کن" },
+                { time: 123, text: "دﻋﺎ ﻛﻦ دﻟﻢ آروم ﺑﮕﻴﺮه" },
+                { time: 126, text: "دﻋﺎم ﻛﻦ اﮔﻪ ﻣﻨﻮ ﻳﺎدت ﻧﻤﻴﺮه" },
+                { time: 130, text: "ﻣﻦ آﺳﻮن ﻧﺮﺳﻴﺪم ﺑﻪ ﺗﻮ" },
+                { time: 133, text: "ﺣﻴﻔﻪ دﻧﻴﺎ ﺗﻮ رو ازم آﺳﻮن ﺑﮕﻴﺮه " },
+                { time: 138, text: "دﻋﺎ ﻛﻦ دﻟﻢ آروم ﺑﮕﻴﺮه " },
+                { time: 142, text: "دﻋﺎم ﻛﻦ اﮔﻪ ﻣﻨﻮ ﻳﺎدت ﻧﻤﻴﺮه " },
+                { time: 146, text: "ﻣﻦ آﺳﻮن ﻧﺮﺳﻴﺪم ﺑﻪ ﺗﻮ " },
+                { time: 149, text: "ﺣﻴﻔﻪ دﻧﻴﺎ ﺗﻮ رو ازم آﺳﻮن ﺑﮕﻴﺮه " },
+                { time: 154, text: "ﻗﺼﻪ ی ﻫﺰار و ﻳﮏ ﺷب تو دلم کاشتی " },
+                { time: 159, text: "ﺗﻮ ﭼﻰ آوردی ﻛﻪ ﺟﺎش ﻗﻠﺒﻤﻮ ﺑﺮداﺷﺘﻰ " },
+                { time: 164, text: "ﻣﺜﻞ ﭘﺎﻳﻴﺰ اوﻣﺪی در ﺑﻪ درم ﻛﺮدی " },
+                { time: 168, text: "اوﻣﺪی ﭼﺸﻤﻪ ﺑﺸﻰ ﺗﺸﻨﻪ ﺗﺮم ﻛﺮدی  " },
+            ];
+            
+            renderLyrics();
+        }
+        
+        // Render lyrics in the container
+        function renderLyrics() {
+            lyricsContent.innerHTML = '';
+            
+            lyricsData.forEach((line, index) => {
+                const lineElement = document.createElement('p');
+                lineElement.className = 'lyrics-line';
+                lineElement.textContent = line.text;
+                lineElement.dataset.time = line.time;
+                
+                lineElement.addEventListener('click', () => {
+                    audio.currentTime = parseFloat(lineElement.dataset.time);
+                    if (!isPlaying) {
+                        audio.play();
+                        playIcon.className = 'pause-icon';
+                        isPlaying = true;
+                        updateMediaSession();
+                    }
+                });
+                
+                lyricsContent.appendChild(lineElement);
+            });
+        }
+        
+        // Update lyrics highlighting based on current time
+        function updateLyricsHighlight(currentTime) {
+            const lines = lyricsContent.querySelectorAll('.lyrics-line');
+            let newCurrentIndex = -1;
+            
+            // Find the current line
+            for (let i = 0; i < lyricsData.length; i++) {
+                if (currentTime >= lyricsData[i].time) {
+                    newCurrentIndex = i;
+                } else {
+                    break;
+                }
+            }
+            
+            // Update highlighting only if changed
+            if (newCurrentIndex !== currentLyricIndex) {
+                currentLyricIndex = newCurrentIndex;
+                
+                lines.forEach((line, index) => {
+                    line.classList.remove('current-line');
+                    if (index === currentLyricIndex) {
+                        line.classList.add('current-line');
+                        
+                        // Auto-scroll if lyrics panel is open
+                        if (lyricsContainer.classList.contains('active')) {
+                            line.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Initialize
+        initMediaSession();
+    </script>
+</body>
+</html>
