@@ -5,7 +5,7 @@
 [![Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge)](https://theamirreza.great-site.net/Music/)  
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)  
 
-![Screenshot](https://theamirreza.great-site.net/music-player/musics/hezaroyekshab.png)  
+![Screenshot](https://theamirreza.great-site.net/music-player/musics/screen.jpeg)  
 
 ## ✨ ویژگی‌های کلیدی  
 - **پشتیبانی از RTL** (بهینه‌شده برای زبان فارسی)  
