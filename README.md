@@ -1,6 +1,6 @@
 # 🎵 Persian Music Player
 
-یک پلیر موسیقی با قابلیت نمایش همزمان متن آهنگ و تایم‌لاین قابل کشیدن  
+یک پلیر موسیقی با قابلیت های متنوع
 
 [![Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge)](https://theamirreza.great-site.net/Music/)  
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)  
